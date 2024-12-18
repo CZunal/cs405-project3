@@ -140,10 +140,8 @@ void main()
 }
 `;
 
-
 /**
  * @Task2 : Update the fragment shader for diffuse and specular lighting.
- * 
  */
 const meshFS = `
 precision mediump float;
@@ -158,29 +156,36 @@ uniform bool isLightSource;
 
 void main()
 {
-	vec3 normal = normalize(vNormal); // Normalize the normal
-	vec3 lightPos = vec3(0.0, 0.0, 5.0); // Position of the light source
-	vec3 lightdir = normalize(lightPos - fragPos); // Normalize the light direction
-	
-	float ambient = 0.35;
-	float diff = 0.0;
-	float spec = 0.0;
-	float phongExp = 8.0;
+    vec3 normal = normalize(vNormal); // Normalize the normal
+    vec3 lightPos = vec3(0.0, 0.0, 5.0); // Position of the light source
+    vec3 lightdir = normalize(lightPos - fragPos); // Normalize the light direction
 
-	/////////////////////////////////////////////////////////////////////////////
-	// PLEASE DO NOT CHANGE ANYTHING ABOVE !!!
-	// Calculate the diffuse and specular lighting below.
+    float ambient = 0.35;
+    float diff = 0.0;
+    float spec = 0.0;
+    float phongExp = 8.0;
 
+    /////////////////////////////////////////////////////////////////////////////
+    // PLEASE DO NOT CHANGE ANYTHING ABOVE !!!
+    // Calculate the diffuse and specular lighting below.
 
+    // Diffuse lighting calculation (Lambertian reflection)
+    diff = max(dot(normal, lightdir), 0.0);
 
-	// PLEASE DO NOT CHANGE ANYTHING BELOW !!!
-	/////////////////////////////////////////////////////////////////////////////
-	
-	if (isLightSource) {
-		gl_FragColor = texture2D(tex, vTexCoord) * vec4(1.0, 1.0, 1.0, 1.0);
-	} else {
-    	gl_FragColor =  texture2D(tex, vTexCoord) * ( ambient + diff + spec ); // Set the fragment color
-	}
+    // Specular lighting calculation (Phong reflection model)
+    vec3 viewDir = normalize(-fragPos); // View direction
+    vec3 reflectDir = reflect(-lightdir, normal); // Reflect the light direction
+    spec = pow(max(dot(viewDir, reflectDir), 0.0), phongExp); // Phong exponent controls shininess
+
+    // PLEASE DO NOT CHANGE ANYTHING BELOW !!!
+    /////////////////////////////////////////////////////////////////////////////
+
+    if (isLightSource) {
+        gl_FragColor = texture2D(tex, vTexCoord) * vec4(1.0, 1.0, 1.0, 1.0);
+    } else {
+        gl_FragColor = texture2D(tex, vTexCoord) * ( ambient + diff + spec ); // Set the fragment color
+    }
 }
 `;
+
 
