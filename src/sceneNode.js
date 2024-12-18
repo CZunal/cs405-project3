@@ -24,21 +24,24 @@ class SceneNode {
     }
 
     draw(mvp, modelView, normalMatrix, modelMatrix) {
-        /**
-         * @Task1 : Implement the draw function for the SceneNode class.
-         */
-        
-        var transformedMvp = mvp;
-        var transformedModelView = modelView;
-        var transformedNormals = normalMatrix;
-        var transformedModel = modelMatrix;
-
-        // Draw the MeshDrawer
+        // Get the transformation matrix from the TRS object
+        const transformationMatrix = this.trs.getTransformationMatrix();
+    
+        // Compute the transformed matrices by combining the parent's matrices with this node's transformation matrix
+        const transformedModelMatrix = MatrixMult(modelMatrix, transformationMatrix);
+        const transformedModelView = MatrixMult(modelView, transformationMatrix);
+        const transformedNormals = MatrixMult(normalMatrix, transformationMatrix); // May need normal matrix adjustment
+        const transformedMvp = MatrixMult(mvp, transformationMatrix);
+    
+        // Draw the MeshDrawer for the current node
         if (this.meshDrawer) {
-            this.meshDrawer.draw(transformedMvp, transformedModelView, transformedNormals, transformedModel);
+            this.meshDrawer.draw(transformedMvp, transformedModelView, transformedNormals, transformedModelMatrix);
+        }
+    
+        // Recursively draw all child nodes
+        for (const child of this.children) {
+            child.draw(transformedMvp, transformedModelView, transformedNormals, transformedModelMatrix);
         }
     }
-
-    
-
+        
 }
